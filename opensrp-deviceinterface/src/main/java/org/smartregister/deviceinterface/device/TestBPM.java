@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import org.ei.opensrp.indonesia.R;
+import org.smartregister.deviceinterface.R;
 
 import java.util.Locale;
 

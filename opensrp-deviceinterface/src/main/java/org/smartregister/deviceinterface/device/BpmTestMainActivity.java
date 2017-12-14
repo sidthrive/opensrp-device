@@ -7,7 +7,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-import org.ei.opensrp.indonesia.R;
+import org.smartregister.deviceinterface.R;
 
 public class BpmTestMainActivity extends Activity implements View.OnClickListener {
 
@@ -34,16 +34,14 @@ public class BpmTestMainActivity extends Activity implements View.OnClickListene
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.tv_sistole:
-                bpmAction();
-                break;
-            case R.id.tv_diastole:
-                bpmAction();
-                break;
+        int i = v.getId();
+        if (i == R.id.tv_sistole) {
+            bpmAction();
 
-            default:
-                break;
+        } else if (i == R.id.tv_diastole) {
+            bpmAction();
+
+        } else {
         }
     }
 

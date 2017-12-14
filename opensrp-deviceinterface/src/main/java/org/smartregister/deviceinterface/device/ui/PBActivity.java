@@ -3,7 +3,7 @@ package org.smartregister.deviceinterface.device.ui;
 import android.app.Activity;
 import android.os.Bundle;
 
-import org.ei.opensrp.indonesia.R;
+import org.smartregister.deviceinterface.R;
 
 ;
 

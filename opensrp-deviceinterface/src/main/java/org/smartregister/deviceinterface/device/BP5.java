@@ -18,15 +18,12 @@ import com.ihealth.communication.control.BpProfile;
 import com.ihealth.communication.manager.iHealthDevicesCallback;
 import com.ihealth.communication.manager.iHealthDevicesManager;
 
-import org.ei.opensrp.indonesia.R;
-import org.ei.opensrp.indonesia.device.manager.DeviceService;
+import org.smartregister.deviceinterface.R;
+import org.smartregister.deviceinterface.device.manager.DeviceService;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-//import android.support.design.widget.FloatingActionButton;
-//import android.support.design.widget.Snackbar;
-//import android.support.v7.app.AppCompatActivity;
 
 public class BP5 extends Activity implements View.OnClickListener {
 
@@ -287,113 +284,98 @@ public class BP5 extends Activity implements View.OnClickListener {
 
     @Override
     public void onClick(View arg0) {
-        switch (arg0.getId()) {
-            case R.id.btn_getbattery:
-                if(bp5Control != null) {
-                    bp5Control.getBattery();
-                }
-                else
-                    Toast.makeText(BP5.this, "bp5Control == null", Toast.LENGTH_LONG).show();
-                break;
+        int i1 = arg0.getId();
+        if (i1 == R.id.btn_getbattery) {
+            if (bp5Control != null) {
+                bp5Control.getBattery();
+            } else
+                Toast.makeText(BP5.this, "bp5Control == null", Toast.LENGTH_LONG).show();
 
-            case R.id.btn_isOfflineMeasure:
-                if(bp5Control != null)
-                    bp5Control.isEnableOffline();
-                else
-                    Toast.makeText(BP5.this, "bp5Control == null", Toast.LENGTH_LONG).show();
-                break;
+        } else if (i1 == R.id.btn_isOfflineMeasure) {
+            if (bp5Control != null)
+                bp5Control.isEnableOffline();
+            else
+                Toast.makeText(BP5.this, "bp5Control == null", Toast.LENGTH_LONG).show();
 
-            case R.id.btn_enableOfflineMeasure:
-                if(bp5Control != null)
-                    bp5Control.enbleOffline();
-                else
-                    Toast.makeText(BP5.this, "bp5Control == null", Toast.LENGTH_LONG).show();
-                break;
+        } else if (i1 == R.id.btn_enableOfflineMeasure) {
+            if (bp5Control != null)
+                bp5Control.enbleOffline();
+            else
+                Toast.makeText(BP5.this, "bp5Control == null", Toast.LENGTH_LONG).show();
 
-            case R.id.btn_disableOfflineMeasure:
-                if(bp5Control != null)
-                    bp5Control.disableOffline();
-                else
-                    Toast.makeText(BP5.this, "bp5Control == null", Toast.LENGTH_LONG).show();
-                break;
+        } else if (i1 == R.id.btn_disableOfflineMeasure) {
+            if (bp5Control != null)
+                bp5Control.disableOffline();
+            else
+                Toast.makeText(BP5.this, "bp5Control == null", Toast.LENGTH_LONG).show();
 
-            case R.id.btn_startMeasure:
-                if(bp5Control != null)
-                    bp5Control.startMeasure();
-                else
-                    Toast.makeText(BP5.this, "bp5Control == null", Toast.LENGTH_LONG).show();
-                break;
+        } else if (i1 == R.id.btn_startMeasure) {
+            if (bp5Control != null)
+                bp5Control.startMeasure();
+            else
+                Toast.makeText(BP5.this, "bp5Control == null", Toast.LENGTH_LONG).show();
 
-            case R.id.btn_stopMeasure:
-                if(bp5Control != null)
-                    bp5Control.interruptMeasure();
-                else
-                    Toast.makeText(BP5.this, "bp5Control == null", Toast.LENGTH_LONG).show();
-                break;
+        } else if (i1 == R.id.btn_stopMeasure) {
+            if (bp5Control != null)
+                bp5Control.interruptMeasure();
+            else
+                Toast.makeText(BP5.this, "bp5Control == null", Toast.LENGTH_LONG).show();
 
-            case R.id.btn_getOfflineNum:
-                if(bp5Control != null)
-                    bp5Control.getOfflineNum();
-                else
-                    Toast.makeText(BP5.this, "bp5Control == null", Toast.LENGTH_LONG).show();
-                break;
+        } else if (i1 == R.id.btn_getOfflineNum) {
+            if (bp5Control != null)
+                bp5Control.getOfflineNum();
+            else
+                Toast.makeText(BP5.this, "bp5Control == null", Toast.LENGTH_LONG).show();
 
-            case R.id.btn_getOfflineData:
-                if(bp5Control != null)
-                    bp5Control.getOfflineData();
-                else
-                    Toast.makeText(BP5.this, "bp5Control == null", Toast.LENGTH_LONG).show();
-                break;
+        } else if (i1 == R.id.btn_getOfflineData) {
+            if (bp5Control != null)
+                bp5Control.getOfflineData();
+            else
+                Toast.makeText(BP5.this, "bp5Control == null", Toast.LENGTH_LONG).show();
 
-            case R.id.btn_disconnect:
-                if(bp5Control != null)
-                    bp5Control.disconnect();
-                else
-                    Toast.makeText(BP5.this, "bp5Control == null", Toast.LENGTH_LONG).show();
-                break;
+        } else if (i1 == R.id.btn_disconnect) {
+            if (bp5Control != null)
+                bp5Control.disconnect();
+            else
+                Toast.makeText(BP5.this, "bp5Control == null", Toast.LENGTH_LONG).show();
 
-            case R.id.btn_startStopMeasure:
-                if (stopMeasured) {
+        } else if (i1 == R.id.btn_startStopMeasure) {
+            if (stopMeasured) {
 //                    startMeasure_btn.setEnabled(false);
-                    pb_mypb.setVisibility(View.VISIBLE);
-                    startStopMeasure_btn.setText(R.string.stop);
-                    if (bp5Control != null) {
+                pb_mypb.setVisibility(View.VISIBLE);
+                startStopMeasure_btn.setText(R.string.stop);
+                if (bp5Control != null) {
 
-                        Intent i = new Intent(this, DeviceService.class);
-                        this.startService(i);
+                    Intent i = new Intent(this, DeviceService.class);
+                    this.startService(i);
 
-                        bp5Control.startMeasure();
-                    } else
-                        Toast.makeText(BP5.this, "bp7Control == null", Toast.LENGTH_LONG).show();
-                    stopMeasured = false;
-                    Log.e(TAG, "onClick: START" );
+                    bp5Control.startMeasure();
+                } else
+                    Toast.makeText(BP5.this, "bp7Control == null", Toast.LENGTH_LONG).show();
+                stopMeasured = false;
+                Log.e(TAG, "onClick: START");
 
-                } else {
-                    startStopMeasure_btn.setText(R.string.start);
-                    pb_mypb.setVisibility(View.GONE);
+            } else {
+                startStopMeasure_btn.setText(R.string.start);
+                pb_mypb.setVisibility(View.GONE);
 
-                    if (bp5Control != null)
-                        bp5Control.interruptMeasure();
-                    else {
-                        Toast.makeText(BP5.this, "bp7Control == null", Toast.LENGTH_LONG).show();
-                        stopMeasured = true;
+                if (bp5Control != null)
+                    bp5Control.interruptMeasure();
+                else {
+                    Toast.makeText(BP5.this, "bp7Control == null", Toast.LENGTH_LONG).show();
+                    stopMeasured = true;
 //                    startMeasure_btn.setEnabled(true);
-                        Log.e(TAG, "onClick: STOP");
-                        Intent i = new Intent(this, DeviceService.class);
-                        this.stopService(i);
-                    }
+                    Log.e(TAG, "onClick: STOP");
+                    Intent i = new Intent(this, DeviceService.class);
+                    this.stopService(i);
                 }
-
-                break;
-
-            case R.id.btn_done:
-                backToDetail();
-                break;
+            }
 
 
+        } else if (i1 == R.id.btn_done) {
+            backToDetail();
 
-            default:
-                break;
+        } else {
         }
     }
 

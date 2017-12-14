@@ -26,7 +26,7 @@ import android.widget.Toast;
 import com.ihealth.communication.manager.iHealthDevicesCallback;
 import com.ihealth.communication.manager.iHealthDevicesManager;
 
-import org.ei.opensrp.indonesia.R;
+import org.smartregister.deviceinterface.R;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -212,12 +212,11 @@ public class MainBPM extends Activity implements View.OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 //        setContentView(R.layout.activity_main);
-        setContentView(R.layout.content_main);
+        setContentView(R.layout.content_bpm_main);
 
         tv_discovery = (TextView) findViewById(R.id.tv_discovery);
         tv_devScan = (TextView) findViewById(R.id.tv_devScan);
         tv_devConn = (TextView) findViewById(R.id.tv_devConnect);
-
 
         bt_startStop = (Button) findViewById(R.id.btn_discorvery_startstop);
 //        bt_discover = (Button) findViewById(R.id.btn_discorvery);
@@ -225,7 +224,7 @@ public class MainBPM extends Activity implements View.OnClickListener {
 
         if (startDiscovering) {
             bt_startStop.setText(R.string.stop_discovery);
-        }else {
+        } else {
             bt_startStop.setText(R.string.stop_discovery);
         }
 //        bt_discover.setVisibility(View.GONE);
@@ -356,7 +355,6 @@ public class MainBPM extends Activity implements View.OnClickListener {
 //            builder.setTitle("Bluetooth disabled");
 //            builder.show();
 
-
         }
 
 //        Intent i = new Intent(this, DeviceService.class);
@@ -397,23 +395,21 @@ public class MainBPM extends Activity implements View.OnClickListener {
         super.onPause();
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
+//    @Override
+//    protected void onDestroy() {
+//        super.onDestroy();
+//
 //        if (iHealthDevicesManager.getInstance() != null) {
-        /*
-         * When the Activity is destroyed , need to call unRegisterClientCallback method to
-         * unregister callback
-         */
-            iHealthDevicesManager.getInstance().unRegisterClientCallback(callbackId);
-        /*
-         * When the Activity is destroyed , need to call destroy method of iHealthDeivcesManager to
-         * release resources
-         */
-            iHealthDevicesManager.getInstance().destroy();
+//        /*
+//         * Unregistered callback
+//         */
+//            iHealthDevicesManager.getInstance().unRegisterClientCallback(callbackId);
+//        /*
+//         * Release iHealth library resources
+//         */
+//            iHealthDevicesManager.getInstance().destroy();
 //        }
-    }
+//    }
 
     private static class DeviceStruct {
         String name;
@@ -505,17 +501,17 @@ public class MainBPM extends Activity implements View.OnClickListener {
 
     @Override
     public void onClick(View arg0) {
-        switch (arg0.getId()) {
-            case R.id.btn_discorvery_startstop:
-                if (!startDiscovering){
-                    startDiscovery();
-                    bt_startStop.setText(R.string.stop_discovery);
-                    startDiscovering = true;
-                } else {
-                    bt_startStop.setText(R.string.start_discovery);
-                    startDiscovering = false;
-                }
-                break;
+        int i = arg0.getId();
+        if (i == R.id.btn_discorvery_startstop) {
+            if (!startDiscovering) {
+                startDiscovery();
+                bt_startStop.setText(R.string.stop_discovery);
+                startDiscovering = true;
+            } else {
+                bt_startStop.setText(R.string.start_discovery);
+                startDiscovering = false;
+            }
+
 
 //            case R.id.btn_discorvery:
 //                startDiscovery();
@@ -524,21 +520,19 @@ public class MainBPM extends Activity implements View.OnClickListener {
 //            case R.id.btn_stopdiscorvery:
 //                iHealthDevicesManager.getInstance().stopDiscovery();
 //                break;
-
-            case R.id.btn_Certification:
-                iHealthDevicesManager.getInstance().sdkUserInAuthor(MainBPM.this, userName, clientId,
-                        clientSecret, callbackId);
+        } else if (i == R.id.btn_Certification) {
+            iHealthDevicesManager.getInstance().sdkUserInAuthor(MainBPM.this, userName, clientId,
+                    clientSecret, callbackId);
 //                iHealthDevicesManager.getInstance().sdkUserInAuthor(MainBPM.this, userName, clientId,
 //                        clientSecret, callbackId, Environment.getExternalStorageDirectory().getAbsolutePath() + "/tencent/QQfile_recv/idscertificate.p12", "ELPWfWdA");
-                break;
+
 
 //            case R.id.btn_GotoTest:
 //                Intent intentTest = new Intent();
 //                intentTest.setClass(MainBPM.this, TestActivity.class);
 //                startActivity(intentTest);
 //                break;
-            default:
-                break;
+        } else {
         }
     }
 

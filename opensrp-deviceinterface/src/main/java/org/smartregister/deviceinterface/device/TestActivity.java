@@ -13,7 +13,7 @@ import com.ihealth.communication.control.Bp3lControl;
 import com.ihealth.communication.manager.iHealthDevicesCallback;
 import com.ihealth.communication.manager.iHealthDevicesManager;
 
-import org.ei.opensrp.indonesia.R;
+import org.smartregister.deviceinterface.R;
 
 //import android.support.v7.app.AppCompatActivity;
 
@@ -78,16 +78,15 @@ public class TestActivity extends Activity implements View.OnClickListener{
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
-            case R.id.btn_Connection_With_Scan:
-                getConnectionLock = false;
-                iHealthDevicesManager.getInstance().startDiscovery(iHealthDevicesManager.DISCOVERY_BP3L);
-                break;
-            case R.id.btn_Connection_Without_Scan:
-                myHandler.sendEmptyMessage(CONNECT_DEVICE);
-                break;
-            default:
-                break;
+        int i = v.getId();
+        if (i == R.id.btn_Connection_With_Scan) {
+            getConnectionLock = false;
+            iHealthDevicesManager.getInstance().startDiscovery(iHealthDevicesManager.DISCOVERY_BP3L);
+
+        } else if (i == R.id.btn_Connection_Without_Scan) {
+            myHandler.sendEmptyMessage(CONNECT_DEVICE);
+
+        } else {
         }
     }
 
