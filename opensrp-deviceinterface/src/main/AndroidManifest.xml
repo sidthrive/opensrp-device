@@ -16,7 +16,6 @@
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -38,7 +37,7 @@
         <!--<activity android:name=".face.bpm.BpmMainActivity" />-->
         <activity android:name=".device.MainBPM" android:label="Blood Pressure Monitor"/>
         <activity android:name=".device.BP7" android:label="Wireless Blood Pressure Wrist Monitor BP7"/>
-        <activity android:name=".device.BP5" android:label="BP5"/>
+        <activity android:name=".device.BP5" android:label="Wireless Blood Pressure Wrist Monitor BP5"/>
         <activity android:name=".device.TestBPM" />
 
     </application>

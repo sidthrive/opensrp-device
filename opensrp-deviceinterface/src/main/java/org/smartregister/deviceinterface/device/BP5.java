@@ -24,17 +24,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-
 public class BP5 extends Activity implements View.OnClickListener {
 
-    private static final String TAG = "BP5";
+    private static final String TAG = BP5.class.getName();
     private Bp5Control bp5Control;
     private String deviceMac;
     private int clientCallbackId;
     private TextView tv_return, tv_sys, tv_dia, tv_pls;
     private TableLayout tabel;
 
-    private Button btn_done, startStopMeasure_btn,  startMeasure_btn, btn_disconnect;
+    private Button btn_done, startStopMeasure_btn, startMeasure_btn, btn_disconnect;
     private boolean stopMeasured = true;
 
     private ProgressBar mProgressBar;
