@@ -37,6 +37,8 @@ repositories {
     maven {
         url 'https://maven.google.com/'
     }
+    mavenCentral()
+    mavenLocal()
 }
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
@@ -45,4 +47,6 @@ dependencies {
     })
     compile 'com.android.support:appcompat-v7:27.0.2'
     testCompile 'junit:junit:4.12'
+    compile 'com.github.markushi:circlebutton:1.1'
+
 }

@@ -5,12 +5,28 @@
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent" tools:context="org.nusabit.bpmsample.MainActivity">
 
-    <Button
-        android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <at.markushi.ui.CircleButton
+        android:id="@+id/myImageView"
+
+        android:layout_width="200dip"
+        android:layout_height="200dip"
+        app:cb_color="#2ed1a2"
+        app:cb_pressedRingWidth="8dip"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:text="START" />
+        android:text="START"/>
 
+    <TextView
+        android:id="@+id/myImageViewText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/myImageView"
+        android:layout_alignLeft="@id/myImageView"
+        android:layout_alignRight="@id/myImageView"
+        android:layout_alignTop="@id/myImageView"
+        android:layout_margin="1dp"
+        android:gravity="center"
+        android:text="START"
+        android:textColor="@android:color/white"
+        android:textSize="30sp" />
 </RelativeLayout>
