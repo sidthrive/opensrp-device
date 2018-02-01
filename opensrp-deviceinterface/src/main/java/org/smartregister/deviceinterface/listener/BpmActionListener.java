@@ -9,5 +9,6 @@ import org.smartregister.deviceinterface.domain.BpmWrapper;
 public interface BpmActionListener {
 
     public void onBpmTaken(BpmWrapper tag);
+    public void onBpmTaken();
 
 }

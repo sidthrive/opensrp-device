@@ -1,2 +1,2 @@
 rootProject.name = 'opensrp-device'
-include ':opensrp-deviceinterface', ':sample'
+include ':opensrp-deviceinterface', ':sample', ':sample-bpm'

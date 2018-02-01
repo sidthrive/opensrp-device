@@ -1,14 +1,14 @@
-package org.smartregister.growthmonitoring.sample.application;
+package org.smartregister.deviceinterface.sample.application;
 
 import org.smartregister.Context;
-import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
+import org.smartregister.CoreLibrary;
+import org.smartregister.deviceinterface.DeviceInterfaceLibrary;
 import org.smartregister.view.activity.DrishtiApplication;
 
 /**
  * Created by keyman on 27/07/2017.
  */
 public class SampleApplication extends DrishtiApplication {
-
 
     @Override
     public void onCreate() {
@@ -20,7 +20,8 @@ public class SampleApplication extends DrishtiApplication {
         context.updateApplicationContext(getApplicationContext());
 
         //Initialize Modules
-        GrowthMonitoringLibrary.init(context, getRepository());
+        CoreLibrary.init(context);
+        DeviceInterfaceLibrary.init(context, getRepository());
 
     }
 

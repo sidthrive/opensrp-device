@@ -1,10 +1,9 @@
 package org.smartregister.deviceinterface;
 
-
-import android.content.Context;
-
 import org.smartregister.deviceinterface.repository.BpmRepository;
+import org.smartregister.repository.EventClientRepository;
 import org.smartregister.repository.Repository;
+import org.smartregister.Context;
 
 /**
  * Created by sid-tech on 12/13/17.
@@ -37,14 +36,20 @@ public class DeviceInterfaceLibrary {
         return context;
     }
 
-    public BpmRepository weightRepository() {
+    public BpmRepository bpmRepository() {
         if (bpmRepository == null) {
             bpmRepository = new BpmRepository(getRepository());
         }
         return bpmRepository;
     }
 
-    public BpmRepository bpmRepository() {
+    public static void init(Context context, Repository repository) {
+        if (instance == null) {
+            instance = new DeviceInterfaceLibrary(context, repository);
+        }
+    }
+
+    public EventClientRepository eventClientRepository() {
         return null;
     }
 }

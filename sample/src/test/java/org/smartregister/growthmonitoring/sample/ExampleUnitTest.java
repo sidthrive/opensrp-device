@@ -1,4 +1,4 @@
-package org.smartregister.growthmonitoring.sample;
+package org.smartregister.deviceinterface.sample;
 
 import org.junit.Test;
 

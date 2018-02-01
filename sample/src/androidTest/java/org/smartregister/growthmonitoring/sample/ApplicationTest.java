@@ -1,4 +1,4 @@
-package org.smartregister.growthmonitoring.sample;
+package org.smartregister.deviceinterface.sample;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
