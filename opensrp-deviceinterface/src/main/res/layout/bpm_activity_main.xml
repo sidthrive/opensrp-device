@@ -24,6 +24,6 @@ tools:context="org.smartregister.deviceinterface.device.BpmTestMainActivity">
         android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp"
         android:text="@string/diastole"
-        android:textColor="@color/light_blue"
+        android:textColor="@android:color/holo_blue_bright"
         android:textSize="150sp" />
 </RelativeLayout>

@@ -1,7 +1,9 @@
 package org.smartregister.deviceinterface.device;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -49,6 +51,28 @@ public class MainBPM extends Activity implements View.OnClickListener {
      */
     private static final int REQUEST_PERMISSIONS = 0;
     private static final int ENABLE_REQUEST = 1;
+    private static ArrayList<DeviceStruct> deviceStructList = new ArrayList<>();
+
+    private ProgressDialog progressDialog;
+
+    static {
+        Field[] fields = iHealthDevicesManager.class.getFields();
+        for (Field field : fields) {
+            String fieldName = field.getName();
+            if (fieldName.contains("DISCOVERY_")) {
+                DeviceStruct struct = new DeviceStruct();
+                struct.name = fieldName.substring(10);
+                try {
+                    struct.type = field.getLong(null);
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+                deviceStructList.add(struct);
+            }
+        }
+
+    }
+
     /*
      * userId the identification of the user, could be the form of email address or mobile phone
      * number (mobile phone number is not supported temporarily). clientID and clientSecret, as the
@@ -61,41 +85,45 @@ public class MainBPM extends Activity implements View.OnClickListener {
     String userName = "anudroid.apk06@gmail.com";
     String clientId = "708bde5b65884f8d9e579e33e66e8e80";
     String clientSecret = "38ff62374a0d4aacadaf0e4fb4ed1931";
-
-    long discoveryType = 67108864; // BP7
-//    long discoveryType = 33554432; // BP5
+    long discoveryType = iHealthDevicesManager.DISCOVERY_BP7; // BP7
+    //    long discoveryType = 33554432; // BP5
+    //    long discoveryType = 67108864; // BP7
 
     private ListView listview_scan, listview_connected;
     private SimpleAdapter sa_scan, sa_connected;
     private Button bt_discover, bt_discover_stop, bt_startStop, bt_certificate, bt_enableBT;
     private TextView tv_discovery, tv_devScan;
     private TextView tv_devConn;
-    private List<HashMap<String, String>> list_ScanDevices = new ArrayList<HashMap<String, String>>();
-    private List<HashMap<String, String>> list_ConnectedDevices = new ArrayList<HashMap<String, String>>();
+    private List<HashMap<String, String>> list_ScanDevices = new ArrayList<>();
+    private List<HashMap<String, String>> list_ConnectedDevices = new ArrayList<>();
     private int callbackId;
+    private int discoveryStatus = 0;
+
     private Handler myHandler = new Handler() {
 
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
+            Log.e(TAG, "handleMessage: msg.what ="+ msg.what);
             switch (msg.what) {
                 case HANDLER_SCAN:
                     Bundle bundle_scan = msg.getData();
                     String mac_scan = bundle_scan.getString("mac");
                     String type_scan = bundle_scan.getString("type");
-                    HashMap<String, String> hm_scan = new HashMap<String, String>();
+                    HashMap<String, String> hm_scan = new HashMap<>();
                     hm_scan.put("mac", mac_scan);
                     hm_scan.put("type", type_scan);
                     list_ScanDevices.add(hm_scan);
                     updateViewForScan();
 //                    connectToDev(mac_scan, type_scan);
+                    Log.e(TAG, "handleMessage: HANDLER_SCAN ");
                     break;
 
                 case HANDLER_CONNECTED:
                     Bundle bundle_connect = msg.getData();
                     String mac_connect = bundle_connect.getString("mac");
                     String type_connect = bundle_connect.getString("type");
-                    HashMap<String, String> hm_connect = new HashMap<String, String>();
+                    HashMap<String, String> hm_connect = new HashMap<>();
                     hm_connect.put("mac", mac_connect);
                     hm_connect.put("type", type_connect);
                     list_ConnectedDevices.add(hm_connect);
@@ -103,6 +131,7 @@ public class MainBPM extends Activity implements View.OnClickListener {
                     Log.e(TAG, "idps:" + iHealthDevicesManager.getInstance().getDevicesIDPS(mac_connect));
                     list_ScanDevices.remove(hm_connect);
                     updateViewForScan();
+                    Log.e(TAG, "handleMessage: HANDLER_CONNECTED ");
 
                     // SID
 //                    connectDevice();
@@ -113,35 +142,35 @@ public class MainBPM extends Activity implements View.OnClickListener {
                     Bundle bundle_disconnect = msg.getData();
                     String mac_disconnect = bundle_disconnect.getString("mac");
                     String type_disconnect = bundle_disconnect.getString("type");
-                    HashMap<String, String> hm_disconnect = new HashMap<String, String>();
+                    HashMap<String, String> hm_disconnect = new HashMap<>();
                     hm_disconnect.put("mac", mac_disconnect);
                     hm_disconnect.put("type", type_disconnect);
                     list_ConnectedDevices.remove(hm_disconnect);
-
                     updateViewForConnected();
-
+                    Log.e(TAG, "handleMessage: HANDLER_DISCONNECT ");
                     break;
+
                 case HANDLER_USER_STATUE:
                     Bundle bundle_status = msg.getData();
                     String username = bundle_status.getString("username");
                     String userstatus = bundle_status.getString("userstatus");
                     String str = "username:" + username + " - userstatus:" + userstatus;
-                    Toast.makeText(MainBPM.this, str, Toast.LENGTH_LONG).show();
-
+//                    Toast.makeText(MainBPM.this, str, Toast.LENGTH_LONG).show();
+                    Log.e(TAG, "handleMessage:str " + str);
+                    Log.e(TAG, "handleMessage: HANDLER_USER_STATUE ");
                     break;
 
                 default:
+                    Log.e(TAG, "handleMessage: DEFAULT ");
                     break;
             }
         }
     };
 
-
     private iHealthDevicesCallback miHealthDevicesCallback = new iHealthDevicesCallback() {
 
         @Override
         public void onScanDevice(String mac, String deviceType, int rssi, Map manufactorData) {
-            Log.i(TAG, "onScanDevice - mac:" + mac + " - deviceType:" + deviceType + " - rssi:" + rssi + " -manufactorData:" + manufactorData);
             Log.e(TAG, "onScanDevice - mac:" + mac + " - deviceType:" + deviceType + " - rssi:" + rssi + " -manufactorData:" + manufactorData);
             Bundle bundle = new Bundle();
             bundle.putString("mac", mac);
@@ -153,10 +182,12 @@ public class MainBPM extends Activity implements View.OnClickListener {
 
             connectToDev(mac, deviceType);
 
+
         }
 
         @Override
         public void onDeviceConnectionStateChange(String mac, String deviceType, int status, int errorID, Map manufactorData) {
+            Log.e(TAG, "onDeviceConnectionStateChange: " );
             Log.e(TAG, "mac:" + mac + " deviceType:" + deviceType + " status:" + status + " errorid:" + errorID + " -manufactorData:" + manufactorData);
             Bundle bundle = new Bundle();
             bundle.putString("mac", mac);
@@ -164,15 +195,19 @@ public class MainBPM extends Activity implements View.OnClickListener {
             Message msg = new Message();
             if (status == iHealthDevicesManager.DEVICE_STATE_CONNECTED) {
                 msg.what = HANDLER_CONNECTED;
+                discoveryStatus = 1;
             } else if (status == iHealthDevicesManager.DEVICE_STATE_DISCONNECTED) {
                 msg.what = HANDLER_DISCONNECT;
+                discoveryStatus = 0;
             }
             msg.setData(bundle);
             myHandler.sendMessage(msg);
+            Log.e(TAG, "onDeviceConnectionStateChange: " + msg);
         }
 
         @Override
         public void onUserStatus(String username, int userStatus) {
+            Log.e(TAG, "onUserStatus: " );
             Bundle bundle = new Bundle();
             bundle.putString("username", username);
             bundle.putString("userstatus", userStatus + "");
@@ -184,20 +219,23 @@ public class MainBPM extends Activity implements View.OnClickListener {
 
         @Override
         public void onDeviceNotify(String mac, String deviceType, String action, String message) {
+            Log.e(TAG, "onDeviceNotify: " );
         }
 
         @Override
         public void onScanFinish() {
-            Log.e(TAG, "onScanFinish: end"+discoveryStatus );
+            Log.e(TAG, "onScanFinish: discoveryStatus " + discoveryStatus);
+            progressDialog.dismiss();
+
             tv_discovery.setText(R.string.discover_finish);
-            if (discoveryStatus == 0){
-                bt_discover_stop.setEnabled(false);
+            if (discoveryStatus == 0) {
+                bt_startStop.setText("OFFLINE");
+//                bt_discover_stop.setEnabled(false);
             }
             bt_startStop.setText(R.string.start_discovery);
         }
 
     };
-    private int discoveryStatus;
     private boolean startDiscovering = false;
 
     private void connectToDev(String mac, String deviceType) {
@@ -211,7 +249,6 @@ public class MainBPM extends Activity implements View.OnClickListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_main);
         setContentView(R.layout.content_bpm_main);
 
         tv_discovery = (TextView) findViewById(R.id.tv_discovery);
@@ -242,25 +279,6 @@ public class MainBPM extends Activity implements View.OnClickListener {
             bt_certificate.setVisibility(View.GONE);
             bt_startStop.setOnClickListener(this);
             bt_certificate.setOnClickListener(this);
-
-//            findViewById(R.id.btn_discorvery).setOnClickListener(this);
-//            findViewById(R.id.btn_stopdiscorvery).setOnClickListener(this);
-//            findViewById(R.id.btn_Certification).setOnClickListener(this);
-
-            // Toolbar
-//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-//        setSupportActionBar(toolbar);
-
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        if (fab != null) {
-//            fab.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View view) {
-//                    Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                            .setAction("Action", null).show();
-//                }
-//            });
-//        }
 
             Log.e(TAG, "Model:" + Build.MODEL + " api:" + Build.VERSION.SDK_INT + " version:" + Build.VERSION.RELEASE);
 
@@ -315,10 +333,15 @@ public class MainBPM extends Activity implements View.OnClickListener {
                 struct.isSelected = ((discoveryType & struct.type) != 0);
             }
 
+            Log.e(TAG, "onCreate:call start ");
             startDiscovery();
+            Log.e(TAG, "onCreate: discoveryStatus " + discoveryStatus);
 
-            if (discoveryStatus == 0){
-                bt_discover_stop.setEnabled(false);
+
+
+            if (discoveryStatus == 0) {
+                bt_startStop.setText("OFFLINE");
+//                bt_discover_stop.setEnabled(false);
             }
 
 //            bt_discover_stop.setEnabled(false);
@@ -351,9 +374,6 @@ public class MainBPM extends Activity implements View.OnClickListener {
                     }
                 }
             });
-//            final AlertDialog.Builder builder = new AlertDialog.Builder(co);
-//            builder.setTitle("Bluetooth disabled");
-//            builder.show();
 
         }
 
@@ -385,16 +405,6 @@ public class MainBPM extends Activity implements View.OnClickListener {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-    }
-
 //    @Override
 //    protected void onDestroy() {
 //        super.onDestroy();
@@ -411,68 +421,19 @@ public class MainBPM extends Activity implements View.OnClickListener {
 //        }
 //    }
 
-    private static class DeviceStruct {
-        String name;
-        long type;
-        boolean isSelected;
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
 
-    private static ArrayList<DeviceStruct> deviceStructList = new ArrayList<>();
-
-    static {
-        Field[] fields = iHealthDevicesManager.class.getFields();
-        for (Field field : fields) {
-            String fieldName = field.getName();
-            if (fieldName.contains("DISCOVERY_")) {
-                DeviceStruct struct = new DeviceStruct();
-                struct.name = fieldName.substring(10);
-                try {
-                    struct.type = field.getLong(null);
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-                deviceStructList.add(struct);
-            }
-        }
-
-    }
-
-    private class SelectDeviceAdapter extends BaseAdapter {
-        @Override
-        public int getCount() {
-            return deviceStructList.size();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return deviceStructList.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        @Override
-        public View getView(final int position, View convertView, ViewGroup parent) {
-            if (convertView == null) {
-                convertView = View.inflate(MainBPM.this, R.layout.select_device_item_layout, null);
-            }
-            CheckBox checkBox = (CheckBox) convertView.findViewById(R.id.select_device_checkbox);
-            checkBox.setText(deviceStructList.get(position).name);
-            checkBox.setChecked(deviceStructList.get(position).isSelected);
-            checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    deviceStructList.get(position).isSelected = isChecked;
-                }
-            });
-            return convertView;
-        }
+    @Override
+    protected void onPause() {
+        super.onPause();
     }
 
     private void startDiscovery() {
-        Log.e(TAG, "startDiscovery: start" );
+//        Log.e(TAG, "startDiscovery: start type " + discoveryType);
+//        Log.e(TAG, "startDiscovery: isBP7 " + (iHealthDevicesManager.DISCOVERY_BP7 == discoveryType));
         // Clear
 //        listview_scan.setVisibility(View.GONE);
 //        listview_connected.setVisibility(View.GONE);
@@ -494,9 +455,18 @@ public class MainBPM extends Activity implements View.OnClickListener {
         // Single device discovery
         iHealthDevicesManager.getInstance().startDiscovery(discoveryType);
         tv_discovery.setText(R.string.discovering);
-        discoveryStatus = 1;
 
-
+        progressDialog = new ProgressDialog(MainBPM.this);
+        progressDialog.setCancelable(true);
+        progressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                iHealthDevicesManager.getInstance().stopDiscovery();
+            }
+        });
+//        discoveryStatus = 1;
+        progressDialog.setMessage("Discovery...");
+        progressDialog.show();
     }
 
     @Override
@@ -513,27 +483,18 @@ public class MainBPM extends Activity implements View.OnClickListener {
             }
 
 
-//            case R.id.btn_discorvery:
-//                startDiscovery();
-//                break;
-
-//            case R.id.btn_stopdiscorvery:
-//                iHealthDevicesManager.getInstance().stopDiscovery();
-//                break;
         } else if (i == R.id.btn_Certification) {
             iHealthDevicesManager.getInstance().sdkUserInAuthor(MainBPM.this, userName, clientId,
                     clientSecret, callbackId);
 //                iHealthDevicesManager.getInstance().sdkUserInAuthor(MainBPM.this, userName, clientId,
 //                        clientSecret, callbackId, Environment.getExternalStorageDirectory().getAbsolutePath() + "/tencent/QQfile_recv/idscertificate.p12", "ELPWfWdA");
-
-
 //            case R.id.btn_GotoTest:
 //                Intent intentTest = new Intent();
 //                intentTest.setClass(MainBPM.this, TestActivity.class);
 //                startActivity(intentTest);
 //                break;
-        } else {
         }
+
     }
 
     private void updateViewForScan() {
@@ -569,16 +530,16 @@ public class MainBPM extends Activity implements View.OnClickListener {
                 String mac = hm.get("mac");
                 Intent intent = new Intent();
                 intent.putExtra("mac", mac);
-                Log.e(TAG, "onItemClick: "+position );
+                Log.e(TAG, "onItemClick: " + position);
                 if (iHealthDevicesManager.TYPE_BP7.equals(type)) {
                     intent.setClass(MainBPM.this, BP7.class);
 //                    startActivity(intent);
-                    startActivityForResult(intent, 2 );
+                    startActivityForResult(intent, 2);
 
                 } else if (iHealthDevicesManager.TYPE_BP5.equals(type)) {
                     intent.setClass(MainBPM.this, BP5.class);
 //                    startActivity(intent);
-                    startActivityForResult(intent, 2 );
+                    startActivityForResult(intent, 2);
 
                 }
             }
@@ -604,7 +565,7 @@ public class MainBPM extends Activity implements View.OnClickListener {
 //        }
     }
 
-    private void connectDevice(){
+    private void connectDevice() {
         HashMap<String, String> hm = list_ConnectedDevices.get(0);
         String type = hm.get("type");
         String mac = hm.get("mac");
@@ -613,24 +574,24 @@ public class MainBPM extends Activity implements View.OnClickListener {
 //        if (iHealthDevicesManager.TYPE_BP7.equals(type)) {
 //            intent.setClass(MainBPM.this, BP7.class);
 //            startActivity(intent);
-            startActivityForResult(intent, 2 );
+        startActivityForResult(intent, 2);
 
 //        }
 
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data){
-        Log.e(TAG, "onActivityResult: "+requestCode+" res: "+resultCode );
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.e(TAG, "onActivityResult: " + requestCode + " res: " + resultCode);
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 1 && resultCode == -1){
+        if (requestCode == 1 && resultCode == -1) {
             Toast.makeText(this, "Bluethooth Enabled Succes", Toast.LENGTH_SHORT).show();
             finish();
             startActivity(getIntent());
 
-        } else if (requestCode == 2){
+        } else if (requestCode == 2) {
 
-            if (data != null){
+            if (data != null) {
 
                 Intent i = new Intent();
                 i.putExtra("HIGH", data.getStringExtra("HIGH"));
@@ -639,10 +600,50 @@ public class MainBPM extends Activity implements View.OnClickListener {
                 i.putExtra("PULSE", data.getStringExtra("PULSE"));
                 setResult(2, i);
                 finish();
-            } else{
-                Log.e(TAG, "onActivityResult: Data Null" );
+            } else {
+                Log.e(TAG, "onActivityResult: Data Null");
             }
 
+        }
+    }
+
+    private static class DeviceStruct {
+        String name;
+        long type;
+        boolean isSelected;
+    }
+
+    private class SelectDeviceAdapter extends BaseAdapter {
+        @Override
+        public int getCount() {
+            return deviceStructList.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return deviceStructList.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(final int position, View convertView, ViewGroup parent) {
+            if (convertView == null) {
+                convertView = View.inflate(MainBPM.this, R.layout.select_device_item_layout, null);
+            }
+            CheckBox checkBox = (CheckBox) convertView.findViewById(R.id.select_device_checkbox);
+            checkBox.setText(deviceStructList.get(position).name);
+            checkBox.setChecked(deviceStructList.get(position).isSelected);
+            checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    deviceStructList.get(position).isSelected = isChecked;
+                }
+            });
+            return convertView;
         }
     }
 }

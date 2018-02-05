@@ -12,14 +12,22 @@ buildscript {
 }
 apply plugin: 'com.android.application'
 
+ext {
+    //dependencies
+    junitVersion = '4.12'
+    supportLibraryVersion = '27.0.1'
+    compiledSdkVersion = 22
+    espressoCore = '2.2.2'
+}
+
 android {
-    compileSdkVersion 27
-    buildToolsVersion "27.0.2"
+    compileSdkVersion compiledSdkVersion
+    buildToolsVersion supportLibraryVersion
 
     defaultConfig {
         applicationId "org.nusabit.bpmsample"
-        minSdkVersion 16
-        targetSdkVersion 27
+        minSdkVersion 18
+        targetSdkVersion 21
         versionCode 1
         versionName "1.0"
 
@@ -39,14 +47,21 @@ repositories {
     }
     mavenCentral()
     mavenLocal()
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
 }
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+//    compile('org.smartregister:opensrp-client-core:1.1.6-SNAPSHOT@aar') {
+//        transitive = true
+//        exclude group: 'com.github.bmelnychuk', module: 'atv'
+//    }
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestCompile("com.android.support.test.espresso:espresso-core:$espressoCore", {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.android.support:appcompat-v7:27.0.2'
-    testCompile 'junit:junit:4.12'
-    compile 'com.github.markushi:circlebutton:1.1'
-
+    compile "com.android.support:appcompat-v7:$supportLibraryVersion"
+        compile 'com.github.markushi:circlebutton:1.1'
+    compile "com.android.support:design:$supportLibraryVersion"
+    compile "com.android.support:support-vector-drawable:$supportLibraryVersion"
+    testCompile "junit:junit:$junitVersion"
+//    compile project(':opensrp-deviceinterface')
 }
